@@ -13,10 +13,14 @@ kruskal.test(Cortisol~Elevation,losLength,data=hares)
 
 kruskal.test(Cortisol~Elevation,data=hares)
 
+
+##Attempting to transform data to be normal
 library(dplyr)
 hares |> mutate(logElev=log(Elevation)) |> ggplot(aes(Elevation))+geom_bar()
 hares<-mutate(hares,transElev=Elevation^0.5)
 ks.test(hares$Loslength,'pnorm')
 
+#Would like to bootstrap the data. Still need to figure it out.
 library(boot)
 func<-lm(Cortisol~Elevation,Loslength,data=hares)
+summary(func)
