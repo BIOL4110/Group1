@@ -1,13 +1,5 @@
 HorBase<-read.csv("HormoneBase_v1.csv")
 library(dplyr)
-hobase<-HorBase |> filter(Genus=="Lepomis") |> select(F_A_Mean,M_A_Mean,Years,Year_1,Year_final,Species,Elevation)
-str(hobase)
-library(ggplot2)
-library(tidyverse)
-str(hobase)
-tidydata<-hobase |> pivot_longer(cols=c("F_A_Mean","M_A_Mean"),names_to = "A_Mean_type",values_to="values")
-ggplot(tidydata, aes(x=Year_final,y=values),group=Year_final)+geom_point()
-
 ##Mammal Cortisol Data
 str(MammalData)
 print(MammalData)
@@ -36,4 +28,24 @@ FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
 cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean(Combined_BC_Mean))
 
 ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+theme_bw()
+
+
+
+
+library(WebPower)
+#Linear regression power analysis
+wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
+
+
+#Spearman's Test
+model2<-cor.test(x=cort_by_elevation$Elevation,y=cort_by_elevation$Cortisol,method='spearman')
+
+#Linear Regression Model
+library(lmtest)
+model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
+summary(model)
+#Checking linear model parameters
+par(mfrow=c(2,2)) 
+plot(model)
+
 
