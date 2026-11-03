@@ -1,4 +1,5 @@
-HorBase<-read.csv("HormoneBase_v1.csv")
+library(fromhere)
+HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 library(dplyr)
 ##Mammal Cortisol Data
 str(MammalData)
