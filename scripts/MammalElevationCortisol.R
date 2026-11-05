@@ -1,6 +1,7 @@
 library(fromhere)
 HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 library(dplyr)
+MammalData <- HorBase
 ##Mammal Cortisol Data
 str(MammalData)
 print(MammalData)
@@ -49,4 +50,7 @@ summary(model)
 par(mfrow=c(2,2)) 
 plot(model)
 
+library(broom)
 
+MammalOutput <- tidy(model, conf.int = TRUE)
+MammalOutput
