@@ -49,8 +49,11 @@ summary(model)
 #Checking linear model parameters
 par(mfrow=c(2,2)) 
 plot(model)
+##plotting model
+ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))
 
 library(broom)
 
 MammalOutput <- tidy(model, conf.int = TRUE)
 MammalOutput
+glance(model)
