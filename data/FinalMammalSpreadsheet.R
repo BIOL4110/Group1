@@ -67,8 +67,12 @@ wp.regression(n = 57, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
 ###Take out null species, and make a phylogenetic tree
 library(dplyr)
 MammalData <- read.csv("data/mammalfinal.csv")
-MammalData <- MammalData[-c(11:14), ]
+MammalData <- MammalData[-c(12:15), ]
 write.csv(MammalData, "data/mammalfinal.csv", row.names = FALSE)
 View(MammalData)
+
+MammalData <- read.csv("data/mammalfinal.csv")
+
+
 
 
