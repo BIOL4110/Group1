@@ -1,9 +1,14 @@
-setwd("C:/Users/swick/Downloads/R/shanewickson-BIOL4110")
 
-# 2. Read the CSV file (put quotes around the file name)
+
+##Read the CSV file, and load packages
 HorBase <- read.csv("data/raw/mammalraw.csv")
 library(dplyr)
-##Mammal Cortisol Data
+library(ggplot2)
+install.packages("WebPower")
+library(WebPower)
+library(lmtest)
+
+##Sort Mammal Cortisol Data
 MammalData <- HorBase
 str(MammalData)
 print(MammalData)
@@ -29,7 +34,6 @@ Newcolumn$M_BC_Mean=SavedMammal$M_BC_Mean
 
 FinalMammal<-Newcolumn
 
-library(ggplot2)
 
 FinalMammal$Elevation<-as.numeric(FinalMammal$Elevation)
 FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
@@ -40,40 +44,44 @@ cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean
 
 ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+theme_bw()
 
+###Take out null species
 
-
-
-library(WebPower)
-#Linear regression power analysis
-wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
-
-
-#Spearman's Test
-model2<-cor.test(x=cort_by_elevation$Elevation,y=cort_by_elevation$Cortisol,method='spearman')
-
-#Linear Regression Model
-library(lmtest)
-model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
-summary(model)
-#Checking linear model parameters
-par(mfrow=c(2,2)) 
-plot(model)
-
-
-install.packages("WebPower")
-library(WebPower)
-#Linear regression power analysis
-wp.regression(n = 57, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
-
-
-###Take out null species, and make a phylogenetic tree
-library(dplyr)
 MammalData <- read.csv("data/mammalfinal.csv")
 MammalData <- MammalData[-c(10:13), ]
 write.csv(MammalData, "data/mammalfinal.csv", row.names = FALSE)
 View(MammalData)
 
 MammalData <- read.csv("data/mammalfinal.csv")
+
+MammalData <- read.csv("data/mammalfinal.csv", na.strings = "null")
+
+MammalData <- MammalData |>
+  mutate(across(c(F_BC_N, M_BC_N, Elevation), ~ replace(., is.na(.), 0)))
+
+write.csv(MammalData, "data/mammalfinal.csv", row.names = FALSE, na = "null")
+
+
+
+###Statistical Tests
+
+#Linear regression power analysis
+wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
+
+#Spearman's Test
+model2<-cor.test(x=cort_by_elevation$Elevation,y=cort_by_elevation$Cortisol,method='spearman')
+
+#Linear Regression Model
+model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
+summary(model)
+
+#Checking linear model parameters
+par(mfrow=c(2,2)) 
+plot(model)
+
+#Linear regression power analysis
+wp.regression(n = 57, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
+
+
 
 
 
