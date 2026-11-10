@@ -1,14 +1,14 @@
 setwd("C:/Users/swick/Downloads/R/shanewickson-BIOL4110")
 
 # 2. Read the CSV file (put quotes around the file name)
-HorBase <- read.csv("HormoneBase_v1.csv")
+HorBase <- read.csv("data/raw/mammalraw.csv")
 library(dplyr)
 ##Mammal Cortisol Data
 MammalData <- HorBase
 str(MammalData)
 print(MammalData)
 class(MammalData$F_BC_Mean)
-MammalData<-HorBase |> filter(Vert_Group=="Mammal",CORT=="cortisol",!Genus%in%c("Balaenoptera","Trichechus","Phoca","Halichoerus","Spermophilus"))  |> select(Species, F_BC_Mean,M_BC_Mean,Common_name,F_BC_N,M_BC_N,Genus,Elevation)                    
+MammalData<-HorBase |> filter(Vert_Group=="Mammal",CORT=="cortisol",!Genus%in%c("Balaenoptera","Trichechus","Phoca","Halichoerus","Spermophilus"))  |> select(Species, F_BC_Mean,M_BC_Mean,Common_name,F_BC_N,M_BC_N,Genus,Elevation) |>  filter_out(F_BC_Mean=="Null",M_BC_Mean=="Null")                   
 
 MammalData
 
@@ -33,6 +33,8 @@ library(ggplot2)
 
 FinalMammal$Elevation<-as.numeric(FinalMammal$Elevation)
 FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
+
+FinalMammal$F_BC_Mean<-as.numeric(FinalMammal$F_BC_Mean)
 
 cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean(Combined_BC_Mean))
 
@@ -67,7 +69,7 @@ wp.regression(n = 57, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
 ###Take out null species, and make a phylogenetic tree
 library(dplyr)
 MammalData <- read.csv("data/mammalfinal.csv")
-MammalData <- MammalData[-c(12:15), ]
+MammalData <- MammalData[-c(10:13), ]
 write.csv(MammalData, "data/mammalfinal.csv", row.names = FALSE)
 View(MammalData)
 
