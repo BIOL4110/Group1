@@ -36,9 +36,11 @@ FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
 
 cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean(Combined_BC_Mean))
 
-ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+theme_bw()
-
-
+ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
+  geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+
+  theme_bw()+
+  ylab("Cortisol (ng/mL)")+
+  xlab ("Elevation (m)")
 
 
 
@@ -57,7 +59,9 @@ summary(model)
 par(mfrow=c(2,2)) 
 plot(model)
 ##plotting model
-ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))
+ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
+  ylab("Mean Cortisol (ng/mL)")+
+  xlab("Elevation (m)")
 
 
 
