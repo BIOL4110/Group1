@@ -9,10 +9,10 @@ library(phylosignal)
 
 HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 
+##Clean the data
 MammalData <- HorBase|>
-  filter(Vert_Group=="Mammal",CORT=="cortisol",!Genus%in%c("Balaenoptera","Trichechus","Phoca","Halichoerus","Spermophilus"))  |>
-  filter_out(F_BC_Mean=="null",M_BC_Mean=="null") |>
-  select(Species, F_BC_Mean,M_BC_Mean,Common_name,F_BC_N,M_BC_N,Genus,Elevation) |>
+  filter(Vert_Group=="Mammal",CORT=="cortisol",!Genus%in%c("Balaenoptera","Trichechus","Phoca","Halichoerus","Spermophilus"),!(F_BC_N=="null"&M_BC_N=="null"))  |>
+  select(Species, F_BC_Mean,M_BC_Mean,Common_name,F_BC_N,M_BC_N,Genus,Elevation)
 ##Mammal Cortisol Data
 
 
@@ -69,7 +69,7 @@ glance(model)
 head(FinalMammal)
 taxa<-FinalMammal$genus # I need to try with genus
 resolved<-tnrs_match_names(taxa)
-tr<-tol_induced_subtree(ott_ids=ott_id(resolved)
+tr<-tol_induced_subtree(ott_ids=ott_id(resolved))
 View(resolved)
 plot(tr)
 
