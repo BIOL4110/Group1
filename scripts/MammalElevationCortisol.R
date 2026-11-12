@@ -81,3 +81,26 @@ class(tr)
 
 pagelslambda<-lambdaTest(FinalMammal$Elevation,tr)
 
+
+####struggling with tree
+install.packages("rotl")
+install.packages("ape")
+library(rotl)
+library(ape)
+
+species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+taxa <- tnrs_match_names(species)
+taxa
+
+tree <- tol_induced_subtree(ott_ids = taxa$ott_id)
+plot(tree)
+tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
+tree$tip.label
+dat$species <- gsub(" ", "_", dat$species)
+setdiff(dat$species, tree$tip.label)   
+setdiff(tree$tip.label, dat$species) 
+
+
+
+
+
