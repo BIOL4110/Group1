@@ -4,6 +4,8 @@ library(WebPower)
 library(lmtest)
 library(broom)
 library(ggplot2)
+library(rotl)
+library(phylosignal)
 
 HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 
@@ -63,3 +65,13 @@ MammalOutput <- tidy(model, conf.int = TRUE)
 MammalOutput
 glance(model)
 
+##Creating a tree
+head(FinalMammal)
+taxa<-FinalMammal$genus # I need to try with genus
+resolved<-tnrs_match_names(taxa)
+tr<-tol_induced_subtree(ott_ids=ott_id(resolved)
+View(resolved)
+plot(tr)
+
+View(FinalMammal$Elevation)
+lambdaTest(FinalMammal$Elevation,resolved)
