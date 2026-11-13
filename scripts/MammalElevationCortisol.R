@@ -6,7 +6,8 @@ library(broom)
 library(ggplot2)
 library(rotl)
 library(phylosignal)
-
+library(nlme)
+library(ape)
 HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 
 ##Clean the data
@@ -71,9 +72,11 @@ glance(model)
 
 ##Creating a tree
 
-resolved<-tnrs_match_names(names=FinalMammal$Genus)
-tr<-tol_induced_subtree(ott_ids=ott_id(resolved),file="mammal_generated_tree.tre")
+species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+resolved<-tnrs_match_names(species)
+tr<-tol_induced_subtree(ott_ids=ott_id(resolved))
 plot(tr)
+head(tr)
 class(tr)
 
 
@@ -90,17 +93,18 @@ library(ape)
 
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
-taxa
+class(taxa)
 
-tree <- tol_induced_subtree(ott_ids = taxa$ott_id)
+tree <- tol_induced_subtree(ott_ids = taxa$ott_id, file="mammal_p")
 plot(tree)
 tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
 tree$tip.label
 dat$species <- gsub(" ", "_", dat$species)
 setdiff(dat$species, tree$tip.label)   
 setdiff(tree$tip.label, dat$species) 
+class(tree)
 
-
-
-
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tr),
+                 data = FinalMammal, method = "ML")
+(pglsModel)
 
