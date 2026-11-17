@@ -1,6 +1,6 @@
-install.packages("fromhere")
-install.packages("lmtest")
-install.packages("phylosignal")
+#install.packages("fromhere")
+#install.packages("lmtest")
+#install.packages("phylosignal")
 library(fromhere)
 library(tidyverse)
 library(WebPower)
@@ -52,71 +52,65 @@ ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
 wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
 
 
-#Spearman's Test
-model2<-cor.test(x=cort_by_elevation$Elevation,y=cort_by_elevation$Cortisol,method='spearman')
+#Linear Regression Model without phylogenetic signal
 
-#Linear Regression Model
-
-model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
-summary(model)
+#model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
+#summary(model)
 #Checking linear model parameters
-par(mfrow=c(2,2)) 
-plot(model)
+#par(mfrow=c(2,2)) 
+#plot(model)
 ##plotting model
-ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
-  ylab("Mean Cortisol (ng/mL)")+
-  xlab("Elevation (m)")
+#ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
+  #ylab("Mean Cortisol (ng/mL)")+
+  #xlab("Elevation (m)")
 
 
 
-MammalOutput <- tidy(model, conf.int = TRUE)
-MammalOutput
-glance(model)
+#MammalOutput <- tidy(model, conf.int = TRUE)
+#MammalOutput
+#glance(model)
 
 ##Creating a tree
 
-species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
-resolved<-tnrs_match_names(species)
-tr<-tol_induced_subtree(ott_ids=ott_id(resolved))
-my_tree <- tol_induced_subtree(ott_ids = resolved$ott_id)
-plot(tr)
-head(tr)
-class(tr)
-class(my_tree)
+#species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+#resolved<-tnrs_match_names(species)
+#tr<-tol_induced_subtree(ott_ids=ott_id(resolved))
+#my_tree <- tol_induced_subtree(ott_ids = resolved$ott_id)
+#plot(tr)
+#head(tr)
+#class(tr)
+#class(my_tree)
 
 
 
 ####struggling with tree
-install.packages("rotl")
-install.packages("ape")
-library(rotl)
-library(ape)
-library(nlme)
+#install.packages("rotl")
+#install.packages("ape")
+#library(rotl)
+#library(ape)
+#library(nlme)
 
-species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
-taxa <- tnrs_match_names(species)
+#species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+#taxa <- tnrs_match_names(species)
 
-class(tr)
+#class(tr)
 
-tree <- tol_induced_subtree(ott_ids = taxa$ott_id, file="mammal_p")
-plot(tree)
-tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
-tree$tip.label
-dat$species <- gsub(" ", "_", dat$species)
-setdiff(dat$species, tree$tip.label)   
-setdiff(tree$tip.label, dat$species) 
-class(tree)
-str(tr)
+#tree <- tol_induced_subtree(ott_ids = taxa$ott_id, file="mammal_p")
+#plot(tree)
+#tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
+#tree$tip.label
+#dat$species <- gsub(" ", "_", dat$species)
+#setdiff(dat$species, tree$tip.label)   
+#setdiff(tree$tip.label, dat$species) 
+#class(tree)
+#str(tr)
 
-pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
-                 data = FinalMammal, method = "ML")
-summary(pglsModel)
+
 
 
 ##retry
 #phylogentic tree
-install.packages("rotl")
-install.packages("ape")
+
 library(rotl)
 library(ape)
 
@@ -135,11 +129,16 @@ tree <- multi2di(tree)
 tree <- compute.brlen(tree, method = "Grafen")
 
 is.ultrametric(tree)   
-plot(tree)
+#plot(tree)
 class(tree)
 
 
-phylo_tree <- as.phylo(tree)
-write.tree(phylo_tree, file = "phylo_tree.nwk")
 
-
+##Running Model
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
+                 data = FinalMammal, method = "ML")
+#Evaluating output
+summary(pglsModel)
+library(broom)
+pglsOutput <- tidy(pglsModel, conf.int = TRUE)
+glimpse(pglsOutput)
