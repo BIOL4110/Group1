@@ -40,11 +40,11 @@ FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
 
 cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean(Combined_BC_Mean))
 
-ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
-  geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+
-  theme_bw()+
-  ylab("Cortisol (ng/mL)")+
-  xlab ("Elevation (m)")
+##ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
+  #geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+
+  #theme_bw()+
+  #ylab("Cortisol (ng/mL)")+
+  #xlab ("Elevation (m)")
 
 
 
@@ -139,6 +139,15 @@ pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = t
                  data = FinalMammal, method = "ML")
 #Evaluating output
 summary(pglsModel)
-library(broom)
 pglsOutput <- tidy(pglsModel, conf.int = TRUE)
 glimpse(pglsOutput)
+
+
+
+# Option A: Using parameters directly
+library(parameters)
+pglsOutput <- model_parameters(pglsModel)
+
+# Option B: Getting exact broom-style column names (term, estimate, conf.low, etc.)
+library(broom.helpers)
+pglsOutput <- tidy_parameters(pglsModel, conf.int = TRUE)
