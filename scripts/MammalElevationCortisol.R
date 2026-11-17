@@ -1,3 +1,6 @@
+install.packages("fromhere")
+install.packages("lmtest")
+install.packages("phylosignal")
 library(fromhere)
 library(tidyverse)
 library(WebPower)
@@ -88,6 +91,7 @@ install.packages("rotl")
 install.packages("ape")
 library(rotl)
 library(ape)
+library(nlme)
 
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
@@ -104,7 +108,38 @@ setdiff(tree$tip.label, dat$species)
 class(tree)
 str(tr)
 
-pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = my_tree),
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
                  data = FinalMammal, method = "ML")
-(pglsModel)
+summary(pglsModel)
+
+
+##retry
+#phylogentic tree
+install.packages("rotl")
+install.packages("ape")
+library(rotl)
+library(ape)
+
+species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+taxa <- tnrs_match_names(species)
+taxa
+
+
+tree <- tol_induced_subtree(ott_ids = taxa$ott_id)
+
+# clean tip labels
+tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
+
+# add branch lengths
+tree <- multi2di(tree)
+tree <- compute.brlen(tree, method = "Grafen")
+
+is.ultrametric(tree)   
+plot(tree)
+class(tree)
+
+
+phylo_tree <- as.phylo(tree)
+write.tree(phylo_tree, file = "phylo_tree.nwk")
+
 
