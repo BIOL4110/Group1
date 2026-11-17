@@ -75,14 +75,12 @@ glance(model)
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 resolved<-tnrs_match_names(species)
 tr<-tol_induced_subtree(ott_ids=ott_id(resolved))
+my_tree <- tol_induced_subtree(ott_ids = resolved$ott_id)
 plot(tr)
 head(tr)
 class(tr)
+class(my_tree)
 
-
-#pgls
-
-pagelslambda<-lambdaTest(FinalMammal$Elevation,tr)
 
 
 ####struggling with tree
@@ -93,7 +91,8 @@ library(ape)
 
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
-class(taxa)
+
+class(tr)
 
 tree <- tol_induced_subtree(ott_ids = taxa$ott_id, file="mammal_p")
 plot(tree)
@@ -103,8 +102,9 @@ dat$species <- gsub(" ", "_", dat$species)
 setdiff(dat$species, tree$tip.label)   
 setdiff(tree$tip.label, dat$species) 
 class(tree)
+str(tr)
 
-pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tr),
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = my_tree),
                  data = FinalMammal, method = "ML")
 (pglsModel)
 
