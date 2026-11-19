@@ -1,6 +1,8 @@
 #install.packages("fromhere")
 #install.packages("lmtest")
 #install.packages("phylosignal")
+#install.packages("broom.mixed")  
+library(broom.mixed)
 library(fromhere)
 library(tidyverse)
 library(WebPower)
@@ -137,17 +139,15 @@ class(tree)
 ##Running Model
 pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
                  data = FinalMammal, method = "ML")
+
+saveRDS(pglsModel, file = "pgls.output.rds")
+
 #Evaluating output
-summary(pglsModel)
-pglsOutput <- tidy(pglsModel, conf.int = TRUE)
+
+pglsOutput <- tidy(pgls.output, conf.int = TRUE)
 glimpse(pglsOutput)
 
 
 
-# Option A: Using parameters directly
-library(parameters)
-pglsOutput <- model_parameters(pglsModel)
 
-# Option B: Getting exact broom-style column names (term, estimate, conf.low, etc.)
-library(broom.helpers)
-pglsOutput <- tidy_parameters(pglsModel, conf.int = TRUE)
+
