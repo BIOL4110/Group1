@@ -147,7 +147,11 @@ saveRDS(pglsModel, file = "pgls.output.rds")
 pglsOutput <- tidy(pgls.output, conf.int = TRUE)
 glimpse(pglsOutput)
 
+##Pagels Lambda 
+pglsLambda <- gls(Combined_BC_Mean ~ Elevation, correlation = corPagel(value = 1, phy = tree, fixed = FALSE),
+                  data = FinalMammal, method = "ML")
 
+summary(pglsLambda)
 
 
 
