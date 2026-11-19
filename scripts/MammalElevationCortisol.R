@@ -134,14 +134,14 @@ is.ultrametric(tree)
 #plot(tree)
 class(tree)
 
-
-
+######ATTENTION TAs AND JOEY, PLEASE READ LINE BELOW THIS.
+##please note that the following 6 lines may crash your R. To obtain the results from the repository run "readRDS" line below.
 ##Running Model
 pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
                  data = FinalMammal, method = "ML")
 
 saveRDS(pglsModel, file = "pgls.output.rds")
-
+readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
 #Evaluating output
 
 pglsOutput <- tidy(pgls.output, conf.int = TRUE)
