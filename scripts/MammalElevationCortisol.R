@@ -36,17 +36,19 @@ Newcolumn$M_BC_Mean=SavedMammal$M_BC_Mean
 
 FinalMammal<-Newcolumn
 
+##Normalizing Data
+FinalMammal<-FinalMammal |> mutate(logCortisol=log(Combined_BC_Mean))
 
 FinalMammal$Elevation<-as.numeric(FinalMammal$Elevation)
 FinalMammal$Combined_BC_Mean<-as.numeric(FinalMammal$Combined_BC_Mean)
 
 cort_by_elevation<-FinalMammal |> group_by(Elevation) |> summarise(Cortisol=mean(Combined_BC_Mean))
 
-##ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
-  #geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+
-  #theme_bw()+
-  #ylab("Cortisol (ng/mL)")+
-  #xlab ("Elevation (m)")
+ggplot(cort_by_elevation)+geom_point(aes(x=Elevation,y=Cortisol))+
+  geom_smooth(aes(x=Elevation,y=Cortisol),method=lm,se=FALSE)+
+  theme_bw()+
+  ylab("Cortisol (ng/mL)")+
+  xlab ("Elevation (m)")
 
 
 
@@ -56,20 +58,29 @@ wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
 
 #Linear Regression Model without phylogenetic signal
 
-#model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
-#summary(model)
+model<-lm(Combined_BC_Mean~Elevation,data=FinalMammal)
+summary(model)
 #Checking linear model parameters
-#par(mfrow=c(2,2)) 
-#plot(model)
+par(mfrow=c(2,2)) 
+plot(model)
+model<-lm(logCortisol~Elevation,data=FinalMammal)
+summary(model)
+#Checking linear model parameters
+par(mfrow=c(2,2)) 
+plot(model)
 ##plotting model
-#ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
-  #ylab("Mean Cortisol (ng/mL)")+
-  #xlab("Elevation (m)")
+ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
+  ylab("Mean Cortisol (ng/mL)")+
+  xlab("Elevation (m)")
 
 
 
-#MammalOutput <- tidy(model, conf.int = TRUE)
-#MammalOutput
+MammalOutput <- tidy(model, conf.int = TRUE)
+MammalOutput
+
+
+hist(FinalMammal$logCortisol)
+
 #glance(model)
 
 ##Creating a tree
@@ -115,7 +126,8 @@ wp.regression(n = 56, p1 = 17, f2 = 0.48197, alpha = 0.05, power = NULL)
 
 library(rotl)
 library(ape)
-
+FinalMammal<-FinalMammal |> mutate(GenSpec=paste(Genus,Species,sep="_"))
+                                   
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
 taxa
@@ -137,17 +149,96 @@ class(tree)
 ######ATTENTION TAs AND JOEY, PLEASE READ LINE BELOW THIS.
 ##please note that the following 6 lines may crash your R. To obtain the results from the repository run "readRDS" line below.
 ##Running Model
-pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
+#pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
                  data = FinalMammal, method = "ML")
 
-saveRDS(pglsModel, file = "pgls.output.rds")
-readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
-#Evaluating output
 
+
+pglsModel <- gls(
+  Combined_BC_Mean ~ Elevation,
+  correlation = corPagel(value = 1.099927, phy = tree, form = ~Species),
+  data = FinalMammal,
+  method = "ML"
+)
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corCAR1(lambda=1.099927),
+                 data = FinalMammal, method = "ML")
+pglscorMartins <- gls(Combined_BC_Mean ~ Elevation, correlation = corMartins(value=1,phy=tree),
+                 data = FinalMammal, method = "ML")
+summary(pglsModel)
+pglsOutput <- tidy(pglsModel, conf.int = TRUE)
+glimpse(pglsOutput)
+saveRDS(pglsModel, file = "pgls.output.rds")
+
+pgls.output<-readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
+#Evaluating output and generating confidence intervals.
 pglsOutput <- tidy(pgls.output, conf.int = TRUE)
 glimpse(pglsOutput)
 
 
+vcvtree<-vcv.phylo(tree)
+class(tree)
+treenum<-as.numeric(tree)
+
+lambdaTest(x=FinalMammal$Combined_BC_Mean,vcv=p4tree)
+lambdaTest(x=tree,vcv)
+
+str(vcvtree)
+p4tree<-as.matrix(tree)
+
+library(phylobase)
+phyloSignal(,methods="Lambda")
+phylobase::hasEdgeLength(rand_p4_tree)
+sapply(phylobase::tdata(rand_p4_tree),class)
+
+p4tree <- as(tree, "phylo4d") # Converted to phylo4d
+
+class(p4tree)
+phyloSignal
 
 
 
+inherits(p4tree,"phylo")
+inherits(p4tree,"phylo4d") # verifies object type
+
+##What actually worked
+x<-FinalMammal$Combined_BC_Mean
+names(x)<-rownames(FinalMammal)
+x<-x[rownames(vcvtree)]
+lambdaTest(x,vcvtree)
+
+install.packages("performance")
+library(performance)
+install.packages("see")
+library(see)
+check_model(pgls.output)
+check_model(model)
+
+
+norm_res<-residuals(pglmmModel,type="normalized")
+qqnorm(norm_res);qqline(norm_res)
+AIC(pgls.output)
+
+pglsModel <- gls(
+  Combined_BC_Mean ~ Elevation,
+  correlation = corPagel(value = 1, phy = tree, form = ~Species),
+  data = FinalMammal,
+  method = "ML"
+)
+install.packages("phyr")
+library(phyr)
+pglmmModel <- pglmm(
+  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
+  data = FinalMammal, 
+  cov_ranef = list(GenSpec = tree)
+)
+summary(pglmmModel)
+install.packages("DHARMa")
+library(DHARMa)
+sim_res<-simulateResiduals(fittedModel=pglmmModel,plot=TRUE)
+sim_lm<-simulateResiduals(fittedModel=model,plot=TRUE)
+
+
+unique(FinalMammal$GenSpec)
+print(tree$tip.label)
+identical(FinalMammal$GenSpec,tree$tip.label)
+which(!(FinalMammal$GenSpec %in% tree$tip.label))
