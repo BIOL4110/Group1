@@ -69,9 +69,9 @@ summary(model)
 par(mfrow=c(2,2)) 
 plot(model)
 ##plotting model
-ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
-  ylab("Mean Cortisol (ng/mL)")+
-  xlab("Elevation (m)")
+#ggplot(model)+geom_point(aes(x=Elevation,y=Combined_BC_Mean))+
+  #ylab("Mean Cortisol (ng/mL)")+
+  #xlab("Elevation (m)")
 
 
 
@@ -149,54 +149,85 @@ class(tree)
 ######ATTENTION TAs AND JOEY, PLEASE READ LINE BELOW THIS.
 ##please note that the following 6 lines may crash your R. To obtain the results from the repository run "readRDS" line below.
 ##Running Model
-pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree,form=~GenSpec),
                  data = FinalMammal, method = "ML")
-saveRDS(pglsModel, file = "pgls.output.rds") #save the data from here
+#saveRDS(pglsModel, file = "pgls.output.rds") #save the data from here
 ##Read the data back in 
 pgls.output<-readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
 #Evaluating output and generating confidence intervals.
 pglsOutput <- tidy(pgls.output, conf.int = TRUE)
+pglsOutput <- tidy(pglsModel, conf.int = TRUE)
 glimpse(pglsOutput)
 class(pgls.output) #returns gls
-
 
 #Model that will calculate lambda of residuals
 
 Pagelmodel <- gls(
   Combined_BC_Mean ~ Elevation, 
   data = FinalMammal, 
-  correlation = corPagel(value = 1, phy = tree, form = ~GenSpec, fixed = FALSE)
+  correlation = corPagel(value = 1, phy = tree, form = ~GenSpec, fixed = FALSE),
+  method="ML"
 )
 
+
 ##interpretation
-summary(Pagelmodel)
+summary(Pagelmodel);summary(pglsOutput)
+AIC(Pagelmodel);AIC(pgls.output)
+
 modelOutput<-tidy(Pagelmodel,conf.int = TRUE)
 glimpse(modelOutput)
-AIC(Pagelmodel)
-AIC(pgls.output)
 
-##Everything below this line is bs
+
+
+logLik(Pagelmodel)
+logLik(pgls.output)
+
+
 #The lambda value from the corPagel gives us a lambda value that is not close to 1. Does this mean that assumptions for corBrownian are being violated?
 #Even though corbrownian has a lower AIC.
 #Also should run mixed effect model to see if AIC is better when taking phylogeny as a random effect.
 
 ##from what I understand, a lambda value of 1 assumes that there is massive phylogenetic influence, which I assume means it would find our data less significant than those with a lambda closer to 0,
 #such as the pagel model, yet the pagel model finds it less significant, therefore I am confused.
+class(FinalMammal$FactGenSpec);class(FinalMammal$Elevation);class(FinalMammal$Combined_BC_Mean)
+FactoredSpecies<-as.factor(FinalMammal$GenSpec)
+is.factor(FactoredSpecies)
+FinalMammal<-FinalMammal |> mutate(FactGenSpec=FactoredSpecies)
+
 library(phyr)
+#pglmmModel <- pglmm(
+  #Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
+  #data = FinalMammal, 
+  #cov_ranef = list(GenSpec = tree),
+  #REML="ML"
+#) 
+
 pglmmModel <- pglmm(
-  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
+  Combined_BC_Mean ~ Elevation + (1 | FactGenSpec__), 
   data = FinalMammal, 
-  cov_ranef = list(GenSpec = tree),
-  REML="ML"
-) 
+  cov_ranef = list(FactGenSpec = tree),
+  REML=FALSE) 
 summary(pglmmModel)
+##Plot
+pglmmplot <- data.frame(
+  Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
+                  max(FinalMammal$Elevation, na.rm = TRUE),
+                  length.out = 100)
+)
+X_new <- model.matrix(~ Elevation, data = pglmmplot)
+pglmmplot$fit <- as.vector(X_new %*% pglmmModel$B)
+
+
+ggplot(FinalMammal, aes(x = Elevation, y = Combined_BC_Mean)) +
+  geom_point() +
+  geom_line(data = pglmmplot, aes(x = Elevation, y = fit),colour = "blue", linewidth = 1) 
+
+#Okay after hella googling I found out that everything sucks and the NLME is a dumbass R package that doesnt work if you have multiples
+#of the same species so all that stuff was useless and we just have to do a phylogenetic mixed model.
 
 
 
-
-
-
-
+##Everything below this line is bs
 
 
 
@@ -295,3 +326,6 @@ unique(FinalMammal$GenSpec)
 print(tree$tip.label)
 identical(FinalMammal$GenSpec,tree$tip.label)
 which(!(FinalMammal$GenSpec %in% tree$tip.label))
+m_bm <- gls(Combined_BC_Mean ~ Elevation, data = FinalMammal, correlation = corBrownian(phy = tree, form = ~GenSpec), method = "ML")
+m_pagel <- gls(Combined_BC_Mean ~ Elevation, data = FinalMammal, correlation = corPagel(0.5, phy = tree, form = ~GenSpec), method = "ML")
+logLik(m_bm);logLik(m_pagel)
