@@ -149,8 +149,60 @@ class(tree)
 ######ATTENTION TAs AND JOEY, PLEASE READ LINE BELOW THIS.
 ##please note that the following 6 lines may crash your R. To obtain the results from the repository run "readRDS" line below.
 ##Running Model
-#pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
+pglsModel <- gls(Combined_BC_Mean ~ Elevation, correlation = corBrownian(phy = tree),
                  data = FinalMammal, method = "ML")
+saveRDS(pglsModel, file = "pgls.output.rds") #save the data from here
+##Read the data back in 
+pgls.output<-readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
+#Evaluating output and generating confidence intervals.
+pglsOutput <- tidy(pgls.output, conf.int = TRUE)
+glimpse(pglsOutput)
+class(pgls.output) #returns gls
+
+
+#Model that will calculate lambda of residuals
+
+Pagelmodel <- gls(
+  Combined_BC_Mean ~ Elevation, 
+  data = FinalMammal, 
+  correlation = corPagel(value = 1, phy = tree, form = ~GenSpec, fixed = FALSE)
+)
+
+##interpretation
+summary(Pagelmodel)
+modelOutput<-tidy(Pagelmodel,conf.int = TRUE)
+glimpse(modelOutput)
+AIC(Pagelmodel)
+AIC(pgls.output)
+
+##Everything below this line is bs
+#The lambda value from the corPagel gives us a lambda value that is not close to 1. Does this mean that assumptions for corBrownian are being violated?
+#Even though corbrownian has a lower AIC.
+#Also should run mixed effect model to see if AIC is better when taking phylogeny as a random effect.
+
+##from what I understand, a lambda value of 1 assumes that there is massive phylogenetic influence, which I assume means it would find our data less significant than those with a lambda closer to 0,
+#such as the pagel model, yet the pagel model finds it less significant, therefore I am confused.
+library(phyr)
+pglmmModel <- pglmm(
+  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
+  data = FinalMammal, 
+  cov_ranef = list(GenSpec = tree),
+  REML="ML"
+) 
+summary(pglmmModel)
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -167,23 +219,24 @@ pglscorMartins <- gls(Combined_BC_Mean ~ Elevation, correlation = corMartins(val
 summary(pglsModel)
 pglsOutput <- tidy(pglsModel, conf.int = TRUE)
 glimpse(pglsOutput)
-saveRDS(pglsModel, file = "pgls.output.rds")
-
-pgls.output<-readRDS(fromhere::from_rproj("scripts/pgls.Output.rds")) ##obtaining model output from direct model path.
-#Evaluating output and generating confidence intervals.
-pglsOutput <- tidy(pgls.output, conf.int = TRUE)
-glimpse(pglsOutput)
 
 
+
+
+
+p4tree <- as(tree, "phylo4d") # Converted to phylo4d
 vcvtree<-vcv.phylo(tree)
 class(tree)
-treenum<-as.numeric(tree)
-
+#treenum<-as.numeric(tree)
+p4tree<-as.matrix(tree)
 lambdaTest(x=FinalMammal$Combined_BC_Mean,vcv=p4tree)
 lambdaTest(x=tree,vcv)
-
+#In rare cases, the data might even suggest a λ>1.
+#This implies that close relatives are even more similar than a random walk
+#would predict. This can happen if, for example, a particular trait is under strong stabilizing
+#selection, and the "optimal" value for that trait is itself inherited phylogenetically.
 str(vcvtree)
-p4tree<-as.matrix(tree)
+
 
 library(phylobase)
 phyloSignal(,methods="Lambda")
