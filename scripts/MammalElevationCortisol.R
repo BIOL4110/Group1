@@ -208,7 +208,6 @@ pglmmModel <- pglmm(
   data = FinalMammal, 
   cov_ranef = list(FactGenSpec = tree),
   REML=FALSE) 
-summary(pglmmModel)
 
 FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
 pglmmModellog <- pglmm(
@@ -217,6 +216,8 @@ pglmmModellog <- pglmm(
   cov_ranef = list(FactGenSpec = tree),
   REML=FALSE) 
 summary(pglmmModellog)
+
+summary(pglmmModel)
 ##Plot
 pglmmplot <- data.frame(
   Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
@@ -238,12 +239,30 @@ ggplot(FinalMammal, aes(x = Elevation, y = Combined_BC_Mean)) +
 
 ##Everything below this line is bs
 
+##Attempting CI & R2
+est <- 0.0020147
+se  <- 0.0004931
+c(lower = est - 1.96 * se, upper = est + 1.96 * se)
+#That gives about 0.00105 to 0.00298. To express it as percent change per 100 m:
+(exp(100 * c(0.00105, 0.00298)) - 1) * 100
+#which is roughly 11% to 35%. Because you only have 12 species, 
+#a t-based interval would be slightly wider, so mention that in your write-up.
+
+X <- model.matrix(~ Elevation, data = FinalMammal)
+var_fixed  <- var(as.vector(X %*% pglmmModellog$B))
+var_random <- 0.8737 + 0.0000003235
+var_resid  <- 0.5042
+
+marginal    <- var_fixed / (var_fixed + var_random + var_resid)
+conditional <- (var_fixed + var_random) / (var_fixed + var_random + var_resid)
+c(marginal = marginal, conditional = conditional)
 
 
 
 
 
-
+nrow(FinalMammal)
+length(unique(FinalMammal$FactGenSpec))
 
 
 pglsModel <- gls(
