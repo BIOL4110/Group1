@@ -209,6 +209,14 @@ pglmmModel <- pglmm(
   cov_ranef = list(FactGenSpec = tree),
   REML=FALSE) 
 summary(pglmmModel)
+
+FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
+pglmmModellog <- pglmm(
+  logCort ~ Elevation + (1 | FactGenSpec__), 
+  data = FinalMammal, 
+  cov_ranef = list(FactGenSpec = tree),
+  REML=FALSE) 
+summary(pglmmModellog)
 ##Plot
 pglmmplot <- data.frame(
   Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
