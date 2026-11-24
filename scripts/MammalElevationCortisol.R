@@ -194,6 +194,7 @@ FactoredSpecies<-as.factor(FinalMammal$GenSpec)
 is.factor(FactoredSpecies)
 FinalMammal<-FinalMammal |> mutate(FactGenSpec=FactoredSpecies)
 
+install.packages("phyr")
 library(phyr)
 #pglmmModel <- pglmm(
   #Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
