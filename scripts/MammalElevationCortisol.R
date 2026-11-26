@@ -237,7 +237,6 @@ ggplot(FinalMammal, aes(x = Elevation, y = Combined_BC_Mean)) +
 
 
 
-##Everything below this line is bs
 
 ##Attempting CI & R2
 est <- 0.0020147
@@ -258,7 +257,8 @@ conditional <- (var_fixed + var_random) / (var_fixed + var_random + var_resid)
 c(marginal = marginal, conditional = conditional)
 
 
-
+XXXXX
+##Everything below this line is bs
 
 
 nrow(FinalMammal)
