@@ -43,12 +43,13 @@ FinalMammal<-FinalMammal |> mutate(GenSpec=paste(Genus,Species,sep="_"))
 #Save this to our repository
 write.csv(file="data/clean/FinalMammal.csv",FinalMammal)
 #Create a tree to account for species non-independence
-#relevant species to for
+#relevant species to the tree
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
+#Extracting tree data based on the species
 taxa <- tnrs_match_names(species)
 taxa
 
-
+#Creating the tree
 tree <- tol_induced_subtree(ott_ids = taxa$ott_id)
 
 # clean tip labels
@@ -57,12 +58,12 @@ tree$tip.label <- strip_ott_ids(tree$tip.label, remove_underscores = FALSE)
 # add branch lengths
 tree <- multi2di(tree)
 tree <- compute.brlen(tree, method = "Grafen")
-
+#Verifying proper object type
 is.ultrametric(tree) 
 class(tree)
 
 
-
+#Running PGLMM
 pglmmModel <- pglmm(
   Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
   data = FinalMammal, 
