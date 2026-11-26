@@ -218,6 +218,18 @@ pglmmModellog <- pglmm(
 summary(pglmmModellog)
 
 summary(pglmmModel)
+##Plot attempt of logged version
+
+new_dat <- data.frame(
+  Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
+                  max(FinalMammal$Elevation, na.rm = TRUE),
+                  length.out = 100)
+)
+
+# 2. Extract fixed effects and design matrix
+X <- model.matrix(~ Elevation, data = new_dat)
+beta <- fixef(pglmmModellog)[, 1] # Fixed effect estimates
+vcov_mat <- pglmmModellog$B.cov    # Variance-covariance matrix of fixed effects
 ##Plot
 pglmmplot <- data.frame(
   Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
@@ -227,8 +239,60 @@ pglmmplot <- data.frame(
 X_new <- model.matrix(~ Elevation, data = pglmmplot)
 pglmmplot$fit <- as.vector(X_new %*% pglmmModel$B)
 
+new_dat$pred <- as.vector(X %*% beta)
+new_dat$se <- sqrt(diag(X %*% vcov_mat %*% t(X)))
+new_dat$lower <- new_dat$pred - 1.96 * new_dat$se
+new_dat$upper <- new_dat$pred + 1.96 * new_dat$se
+ggplot() +
+  geom_point(data = FinalMammal, 
+             aes(x = Elevation, y = logCort), 
+             alpha = 0.6, size = 2.5, color = "gray30") +
+geom_ribbon(data = new_dat, 
+              aes(x = Elevation, ymin = lower, ymax = upper), 
+              fill = "#2b8cbe", alpha = 0.25)+
+geom_line(data = new_dat, 
+          aes(x = Elevation, y = pred), 
+          color = "#08589e", linewidth = 1.2) +
+  labs(
+    x = "Elevation",
+    y = "log(Cortisol)") +
+  theme_bw()
+##EDit
+##Plot attempt of logged version
 
-ggplot(FinalMammal, aes(x = Elevation, y = Combined_BC_Mean)) +
+new_dat <- data.frame(
+  Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
+                  max(FinalMammal$Elevation, na.rm = TRUE),
+                  length.out = 100)
+)
+
+# 2. Extract fixed effects and design matrix
+X <- model.matrix(~ Elevation, data = new_dat)
+beta <- fixef(pglmmModellog)[, 1] # Fixed effect estimates
+vcov_mat <- pglmmModellog$B.cov    # Variance-covariance matrix of fixed effects
+##Plot
+pglmmplot <- data.frame(
+  Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
+                  max(FinalMammal$Elevation, na.rm = TRUE),
+                  length.out = 100)
+)
+X_new <- model.matrix(~ Elevation, data = pglmmplot)
+pglmmplot$fit <- as.vector(X_new %*% pglmmModel$B)
+
+new_dat$pred <- as.vector(X %*% beta)
+ggplot() +
+  geom_point(data = FinalMammal, 
+             aes(x = Elevation, y = logCort), 
+             alpha = 0.6,size=2) +
+
+  geom_line(data = new_dat, 
+            aes(x = Elevation, y = pred), 
+            color = "blue", linewidth = 1.2) +
+  labs(
+    x = "Elevation(m)",
+    y = "logCortisol (ng/mL)") +
+  theme_bw()
+ggplot(FinalMammal, aes(x = Elevation, y = logCort)) +
   geom_point() +
   geom_line(data = pglmmplot, aes(x = Elevation, y = fit),colour = "blue", linewidth = 1) 
 
