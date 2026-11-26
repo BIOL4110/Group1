@@ -11,6 +11,8 @@ library(rotl)
 library(phylosignal)
 library(nlme)
 library(ape)
+sessionInfo<-sessionInfo()
+save(sessionInfo,file="outputs/SessionInfo.pdf")
 ##Importing Dataset
 HorBase<-read.csv(fromhere::from_rproj("data/raw/mammalraw.csv"))
 ##Cleaning Dataset
