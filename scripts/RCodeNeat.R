@@ -43,7 +43,7 @@ FinalMammal<-FinalMammal |> mutate(GenSpec=paste(Genus,Species,sep="_"))
 #Save this to our repository
 write.csv(file="data/clean/FinalMammal.csv",FinalMammal)
 #Create a tree to account for species non-independence
-
+#relevant species to for
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
 taxa
@@ -62,17 +62,11 @@ is.ultrametric(tree)
 class(tree)
 
 
-#pglmmModel <- pglmm(
-#Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
-#data = FinalMammal, 
-#cov_ranef = list(GenSpec = tree),
-#REML="ML"
-#) 
 
 pglmmModel <- pglmm(
-  Combined_BC_Mean ~ Elevation + (1 | FactGenSpec__), 
+  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
   data = FinalMammal, 
-  cov_ranef = list(FactGenSpec = tree),
+  cov_ranef = list(GenSpec = tree),
   REML=FALSE) 
 
 FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
