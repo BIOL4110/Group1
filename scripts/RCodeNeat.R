@@ -37,8 +37,12 @@ Newcolumn$M_BC_Mean=SavedMammal$M_BC_Mean
 
 #Let's use the name "Final Mammal" for clarity as we proceed.
 FinalMammal<-Newcolumn
-#Create a tree to account for species non-independence
+
+#Add a column with the full species name into our data so that it can be compared to tree tips.
 FinalMammal<-FinalMammal |> mutate(GenSpec=paste(Genus,Species,sep="_"))
+#Save this to our repository
+write.csv(file="data/clean/FinalMammal.csv",FinalMammal)
+#Create a tree to account for species non-independence
 
 species <- c("Connochaetes taurinus", "Ctenomys talarum", "Lynx pardinus", "Macaca mulatta", "Octodon degus", "Ornithorhynchus anatinus", "Ovibos moschatus", "Papio cynocephalus", "Tamias amoenus", "Tragelaphus strepsiceros", "Urocitellus parryii", "Ursus maritimus")
 taxa <- tnrs_match_names(species)
