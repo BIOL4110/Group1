@@ -2,16 +2,17 @@
 title: "Data Dictionary"
 output: html_notebook
 ---
-Species - Species name of each observation
-F_BC_MEAN - Mean blood cortisol concentration of Female individuals evaluated in this study. Reported in nanograms per milliliters
-M_BC_MEAN - Mean blood cortisol concentration of Male individuals evaluated in this study. Reported in nanograms per milliliters
-Common_name - Common name of each observed species
-F_BC_N - Number of Female subjects that had their blood cortisol levels measured.
-M_BC_N - Number of Male subjects that had their blood cortisol levels measured.
-Genus - Genus name of each observation
-Elevation - Elevation in meters where observations were taken of each individual
-Combined_BC_Mean - Baseline Cortisol levels observed in subjects in nanograms per milliliter of blood
-GenSpec - Genus and species name of each observation separated by "_".
-logCort - log transformed values of baseline blood cortisol in nanograms per milliliter (ng/mL) for each observation
-tree - Phylogenetic tree built with rotl package based on species present in dataset
-pglmmModellog - Phylogenetic generalized linear mixed model based on the linear relationship of blood cortisol concentration relative to elevation.
+**Species** - Species name of each observation
+**F_BC_MEAN** - Mean blood cortisol concentration of Female individuals evaluated in this study. Reported in nanograms per milliliters
+**M_BC_MEAN** - Mean blood cortisol concentration of Male individuals evaluated in this study. Reported in nanograms per milliliters
+**Common_name** - Common name of each observed species
+**F_BC_N** - Number of Female subjects that had their blood cortisol levels measured.
+**M_BC_N** - Number of Male subjects that had their blood cortisol levels measured.
+**Genus** - Genus name of each observation
+**Elevation** - Elevation in meters where observations were taken of each individual
+**Combined_BC_Mean** - Baseline Cortisol levels observed in subjects in nanograms per milliliter of blood
+**GenSpec** - Genus and species name of each observation separated by "_".
+**logCort** - log transformed values of baseline blood cortisol in nanograms per milliliter (ng/mL) for each observation
+**tree** - Phylogenetic tree built with rotl package based on species present in dataset
+**pglmmModellog** - Phylogenetic generalized linear mixed model based on the linear relationship of blood cortisol concentration relative to elevation.
+
