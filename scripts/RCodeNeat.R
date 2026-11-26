@@ -66,6 +66,8 @@ tree <- compute.brlen(tree, method = "Grafen")
 #Verifying proper object type
 is.ultrametric(tree) 
 class(tree)
+plot(tree)
+png("outputs/phylo_plot.png")
 
 
 #Running PGLMM
