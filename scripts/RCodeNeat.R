@@ -120,8 +120,8 @@ var_fixed  <- var(as.vector(X %*% pglmmModellog$B))
 var_random <- 0.8737 + 0.0000003235
 var_resid  <- 0.5042
 
-marginal    <- var_fixed / (var_fixed + var_random + var_resid)
-conditional <- (var_fixed + var_random) / (var_fixed + var_random + var_resid)
+marginal    <- var_fixed / (var_fixed + var_random + var_resid) #R-squared of elevation alone
+conditional <- (var_fixed + var_random) / (var_fixed + var_random + var_resid) #R-squared based on elevation and phylogeny
 c(marginal = marginal, conditional = conditional)
 
 
