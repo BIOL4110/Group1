@@ -74,9 +74,12 @@ pglmmModel <- pglmm(
   data = FinalMammal, 
   cov_ranef = list(GenSpec = tree), #Compare to the phylogenetic tree we made
   REML=FALSE) 
-##Instead we should use normalized data
+##This works but the assumptions of the model demand normalized data
+hist(FinalMammal$Combined_BC_Mean) #This does not look normalized
+
 #Let's create a log transformed column for our Cortisol
 FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
+hist(FinalMammal$logCort) # This looks substantially better
 #Try the model again with log-transformed data
 pglmmModellog <- pglmm(
   logCort ~ Elevation + (1 | GenSpec__), 
