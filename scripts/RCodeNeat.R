@@ -65,20 +65,23 @@ class(tree)
 
 #Running PGLMM
 pglmmModel <- pglmm(
-  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), #Relationship of 
+  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), #Relationship of Elevation and cortisol
   data = FinalMammal, 
-  cov_ranef = list(GenSpec = tree),
+  cov_ranef = list(GenSpec = tree), #Compare to the phylogenetic tree we made
   REML=FALSE) 
-
+##Instead we should use normalized data
+#Let's create a log transformed column for our Cortisol
 FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
+#Try the model again with log-transformed data
 pglmmModellog <- pglmm(
   logCort ~ Elevation + (1 | GenSpec__), 
   data = FinalMammal, 
   cov_ranef = list(GenSpec = tree),
   REML=FALSE) 
+#Results
 summary(pglmmModellog)
 
-summary(pglmmModel)
+
 ##Plot
 pglmmplot <- data.frame(
   Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
