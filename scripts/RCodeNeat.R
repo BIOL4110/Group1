@@ -65,16 +65,16 @@ class(tree)
 
 #Running PGLMM
 pglmmModel <- pglmm(
-  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), 
+  Combined_BC_Mean ~ Elevation + (1 | GenSpec__), #Relationship of 
   data = FinalMammal, 
   cov_ranef = list(GenSpec = tree),
   REML=FALSE) 
 
 FinalMammal<-FinalMammal |> mutate(logCort=log(Combined_BC_Mean))
 pglmmModellog <- pglmm(
-  logCort ~ Elevation + (1 | FactGenSpec__), 
+  logCort ~ Elevation + (1 | GenSpec__), 
   data = FinalMammal, 
-  cov_ranef = list(FactGenSpec = tree),
+  cov_ranef = list(GenSpec = tree),
   REML=FALSE) 
 summary(pglmmModellog)
 
