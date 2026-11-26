@@ -94,12 +94,16 @@ pglmmplot <- data.frame(
                   length.out = 100)
 )
 X_new <- model.matrix(~ Elevation, data = pglmmplot)
-pglmmplot$fit <- as.vector(X_new %*% pglmmModel$B)
+pglmmplot$fit <- as.vector(X_new %*% pglmmModellog$B)
 
 
-ggplot(FinalMammal, aes(x = Elevation, y = Combined_BC_Mean)) +
+ggplot(FinalMammal, aes(x = Elevation, y = logCort)) +
   geom_point() +
-  geom_line(data = pglmmplot, aes(x = Elevation, y = fit),colour = "blue", linewidth = 1) 
+  geom_line(data = pglmmplot, aes(x = Elevation, y = fit),colour = "blue", linewidth = 1)+
+  ylab("logCortisol (ng/mL)")+
+  xlab("Elevation (m)")
+#Save plot as image
+save.image(file="outputs/pglmmPlot.png")
 
 #Okay after hella googling I found out that everything sucks and the NLME is a dumbass R package that doesnt work if you have multiples
 #of the same species so all that stuff was useless and we just have to do a phylogenetic mixed model.
