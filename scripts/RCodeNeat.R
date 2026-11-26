@@ -88,6 +88,7 @@ summary(pglmmModellog)
 
 
 ##Plot
+#Create a new dataframe so that we can plot it with the fit
 pglmmplot <- data.frame(
   Elevation = seq(min(FinalMammal$Elevation, na.rm = TRUE),
                   max(FinalMammal$Elevation, na.rm = TRUE),
@@ -105,21 +106,14 @@ ggplot(FinalMammal, aes(x = Elevation, y = logCort)) +
 #Save plot as image
 save.image(file="outputs/pglmmPlot.png")
 
-#Okay after hella googling I found out that everything sucks and the NLME is a dumbass R package that doesnt work if you have multiples
-#of the same species so all that stuff was useless and we just have to do a phylogenetic mixed model.
 
-
-
-##Everything below this line is bs
-
-##Attempting CI & R2
+## CI & R2
+#values from pglmm output
 est <- 0.0020147
 se  <- 0.0004931
 c(lower = est - 1.96 * se, upper = est + 1.96 * se)
-#That gives about 0.00105 to 0.00298. To express it as percent change per 100 m:
-(exp(100 * c(0.00105, 0.00298)) - 1) * 100
-#which is roughly 11% to 35%. Because you only have 12 species, 
-#a t-based interval would be slightly wider, so mention that in your write-up.
+
+
 
 X <- model.matrix(~ Elevation, data = FinalMammal)
 var_fixed  <- var(as.vector(X %*% pglmmModellog$B))
