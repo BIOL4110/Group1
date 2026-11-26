@@ -109,7 +109,8 @@ ggplot(FinalMammal, aes(x = Elevation, y = logCort)) +
   geom_point() +
   geom_line(data = pglmmplot, aes(x = Elevation, y = fit),colour = "blue", linewidth = 1)+
   ylab("logCortisol (ng/mL)")+
-  xlab("Elevation (m)")
+  xlab("Elevation (m)")+
+  theme_bw()
 #Save plot as image
 save.image(file="outputs/pglmmPlot.png")
 
