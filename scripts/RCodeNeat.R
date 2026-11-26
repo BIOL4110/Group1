@@ -38,6 +38,11 @@ Newcolumn$M_BC_Mean=SavedMammal$M_BC_Mean
 #Let's use the name "Final Mammal" for clarity as we proceed.
 FinalMammal<-Newcolumn
 
+#Change Elevation column to be read as numbers
+FinalMammal$Elevation <- as.numeric(FinalMammal$Elevation)
+FinalMammal$Combined_BC_Mean <- as.numeric(FinalMammal$Combined_BC_Mean)
+FinalMammal <- FinalMammal[!is.na(FinalMammal$Elevation), ]
+
 #Add a column with the full species name into our data so that it can be compared to tree tips.
 FinalMammal<-FinalMammal |> mutate(GenSpec=paste(Genus,Species,sep="_"))
 #Save this to our repository
