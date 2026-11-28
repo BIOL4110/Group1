@@ -134,8 +134,10 @@ c(marginal = marginal, conditional = conditional)
 
 
 
-
-
+#Is this complex model really more accurate than a generic linear model?
+model<-lm(logCort~Elevation,data=FinalMammal)
+summary(model)
+AIC(model) #Yes it is
 
 
 
